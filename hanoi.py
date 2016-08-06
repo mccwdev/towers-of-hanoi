@@ -24,9 +24,10 @@ import sys
 from stack import Stack
 
 TOWERS = 'ABC'
-TOWERSIZE = 9
+TOWERSIZE = 4
 
-sys.setrecursionlimit(10000)
+# For more then 7 discs you probably need to increase the recursionlimit
+#sys.setrecursionlimit(10000)
 
 def initgame():
     return {'A': Stack(list(reversed(range(1,TOWERSIZE+1)))), 'B': Stack(), 'C': Stack()}
@@ -38,6 +39,8 @@ def show(gamedomain):
     for tower in sorted(gamedomain):
         print('%s%s' % (tower, gamedomain[tower]))
 
+# Get all possilbe moves fom a given startdomain. Return a list of tupples with format
+# (move, newdomain, score), i.e. ('ab', {stack1, stack2, stack3}, 3)
 def possiblemoves(startdomain):
     moves = []
     domain = startdomain[1]
@@ -50,6 +53,8 @@ def possiblemoves(startdomain):
     moves = sorted(moves, key=lambda x: x[2], reverse=True)
     return moves
 
+# Count the number of moves of the biggest disc. One or two moves should be enough to
+# solve the puzzle, so it tells something about the quality of the solution path.
 def bigdiscmoves(path):
     if not path: return 0
     bigdiscrow = None
@@ -63,6 +68,7 @@ def bigdiscmoves(path):
             countmoves += 1
     return countmoves
 
+# Simple mechanism to get the score of the current domain, this increases speed dramatically.
 def score(domain):
     st = TOWERSIZE
     score = 0
@@ -74,6 +80,8 @@ def score(domain):
             break
     return score
 
+# Generate possible solution paths, explore paths with the highest score first.
+# Stop searching and return path when a solution is found.
 def generate(startdomain, goaldomain, path=[]):
     path = path + [startdomain]
     if startdomain[1] == goaldomain[1]:
@@ -85,6 +93,7 @@ def generate(startdomain, goaldomain, path=[]):
             if newpath: return newpath
     return None
 
+# Move disc from one stack to another using pop() and push()
 def movedisc(gamedomain, move):
     if gamedomain[move[0]].top() > gamedomain[move[1]].top() and gamedomain[move[1]].top():
         print("Smaller discs (numbers) on top only!")
